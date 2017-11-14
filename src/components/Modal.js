@@ -17,12 +17,15 @@ export default ({
   preview,
   description,
   pending,
-  handleDescriptionChange
+  handleDescriptionChange,
+  handleDropZoneClick
 }) => {
   const dropZoneProps = {
     onDrop,
+    onClick: handleDropZoneClick,
     accept: 'image/jpeg, image/png, image/gif',
-    multiple: false
+    multiple: false,
+    disableClick: true
   };
   return (
     <div className={modalClass(isActive)}>
@@ -60,14 +63,12 @@ export default ({
               </div>
               <div className="column upload-column">
                 {!preview ? (
-                  <div className="dropzone-wrapper">
-                    <Dropzone {...dropZoneProps}>
-                      <p>
-                        Try dropping some files here, or click to select files
-                        to upload.
-                      </p>
-                    </Dropzone>
-                  </div>
+                   <button
+                   onClick={handleDropZoneClick}
+                   className="button is-info is-margin-top"
+                 >
+                   Upload
+                 </button>
                 ) : (
                   <img src={preview} alt="Preview" />
                 )}

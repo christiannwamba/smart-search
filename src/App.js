@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
-import { InstantSearch, SearchBox, InfiniteHits } from 'react-instantsearch/dom';
+import {
+  InstantSearch,
+  SearchBox,
+  InfiniteHits
+} from 'react-instantsearch/dom';
 import axios from 'axios';
 
 import ImageList from './components/ImageList';
 import Modal from './components/Modal';
 import './App.css';
+// var cloudinary = "";
 
 class App extends Component {
   constructor(props) {
@@ -21,38 +26,31 @@ class App extends Component {
 
     this.requestURL =
       'https://wt-nwambachristian-gmail_com-0.run.webtask.io/ai-search';
+    this.cl = window.cloudinary;
+    this.uploadWidget = this.cl.createUploadWidget(
+      { cloud_name: 'christekh', upload_preset: 'idcidr0h' },
+      (error, [data]) => {
+        console.log(data);
+        this.setState({
+          preview: data.secure_url,
+          previewPayload: data,
+          previewPublicId: data.public_id
+        });
+      }
+    );
+
     this.toggleModal = this.toggleModal.bind(this);
-    this.onDrop = this.onDrop.bind(this);
     this.saveImage = this.saveImage.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
+    this.handleDropZoneClick = this.handleDropZoneClick.bind(this);
   }
 
   toggleModal() {
     this.setState({ modalIsActive: !this.state.modalIsActive });
   }
 
-  onDrop(files) {
-    if (files.length > 0) {
-      // Update the file state and
-      // Assemble file
-      const formData = new FormData();
-      formData.append('image', files[0]);
-      // Show loading indicator
-      this.setState({ pending: true });
-      // Post to server
-      axios
-        .post(this.requestURL + '/upload', formData)
-        .then(({ data: { data } }) => {
-          // Set preview state with uploaded image
-          this.setState({
-            preview: data.secure_url,
-            previewPayload: data,
-            previewPublicId: data.public_id,
-            pending: false
-          });
-          
-        });
-    }
+  handleDropZoneClick(event) {
+    this.uploadWidget.open();
   }
 
   handleDescriptionChange(event) {
@@ -71,7 +69,7 @@ class App extends Component {
     axios.post(this.requestURL + '/save', payload).then(data => {
       // Set preview state with uploaded image
       this.setState({ pending: false });
-      this.toggleModal()
+      this.toggleModal();
     });
   }
 
@@ -92,7 +90,8 @@ class App extends Component {
                       <div>
                         <h1 className="title">Smart Search</h1>
                         <h2 className="subtitle">
-                          Smart auto tagging & search. Search results depend on images' actual contents.
+                          Smart auto tagging & search. Search results depend on
+                          images' actual contents.
                         </h2>
                       </div>
                     </div>
@@ -118,7 +117,7 @@ class App extends Component {
               </div>
             </div>
           </section>
-          <InfiniteHits hitComponent={ImageList}/>
+          <InfiniteHits hitComponent={ImageList} />
           <Modal
             isActive={this.state.modalIsActive}
             toggleModal={this.toggleModal}
@@ -128,6 +127,7 @@ class App extends Component {
             handleDescriptionChange={this.handleDescriptionChange}
             saveImage={this.saveImage}
             pending={this.state.pending}
+            handleDropZoneClick={this.handleDropZoneClick}
           />
         </InstantSearch>
       </div>
